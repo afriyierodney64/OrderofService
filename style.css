@@ -440,17 +440,7 @@ html, body {
   }
 
   .document-scroll-area {
-    padding: 0.5rem 0.25rem 4rem 0.25rem;
-  }
-
-  /* Fit screen by default on mobile, perfectly framed between header and floating nav */
-  .document-scroll-area.fit-screen-mode {
-    padding: 0.5rem 0.35rem 4.2rem 0.35rem;
-  }
-
-  .document-scroll-area.fit-screen-mode .page-card {
-    height: calc(100vh - var(--header-height) - 4.4rem);
-    max-width: calc(100vw - 0.7rem);
+    padding: 0.75rem 0.5rem 1.5rem 0.5rem;
   }
 
   .pages-stream {
@@ -461,51 +451,13 @@ html, body {
   .page-card {
     border-radius: 3px;
   }
-
-  /* Floating Bottom Page Bar for Mobile */
-  .mobile-nav-bar {
-    position: fixed;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(30, 32, 36, 0.94);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border-color);
-    border-radius: 30px;
-    padding: 5px 12px;
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-    z-index: 25;
-  }
-
-  .mobile-nav-bar button {
-    background: transparent;
-    border: none;
-    color: var(--text-main);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    cursor: pointer;
-  }
-
-  .mobile-page-indicator {
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--text-main);
-    min-width: 65px;
-    text-align: center;
-  }
 }
 
 /* ==========================================================================
    Print Styles
    ========================================================================== */
 @media print {
-  .app-header, .sidebar, .mobile-nav-bar {
+  .app-header, .sidebar {
     display: none !important;
   }
 

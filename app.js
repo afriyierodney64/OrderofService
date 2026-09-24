@@ -25,11 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPrint = document.getElementById('btnPrint');
   const btnFullscreen = document.getElementById('btnFullscreen');
 
-  const mobilePageText = document.getElementById('mobilePageText');
-  const btnMobilePrev = document.getElementById('btnMobilePrev');
-  const btnMobileNext = document.getElementById('btnMobileNext');
-  const btnMobileThumbnails = document.getElementById('btnMobileThumbnails');
-
   totalPagesText.textContent = TOTAL_PAGES;
   pageInput.max = TOTAL_PAGES;
 
@@ -127,9 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function setActivePage(pageNum) {
     currentPage = pageNum;
     pageInput.value = pageNum;
-    if (mobilePageText) {
-      mobilePageText.textContent = `Page ${pageNum} / ${TOTAL_PAGES}`;
-    }
 
     // Highlight Thumbnail
     thumbNodes.forEach((thumb, idx) => {
@@ -161,8 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnPrevHeader.addEventListener('click', goPrev);
   btnNextHeader.addEventListener('click', goNext);
-  btnMobilePrev.addEventListener('click', goPrev);
-  btnMobileNext.addEventListener('click', goNext);
 
   // 5. Sidebar Toggle
   const toggleSidebar = () => {
@@ -171,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   btnToggleSidebar.addEventListener('click', toggleSidebar);
-  btnMobileThumbnails.addEventListener('click', toggleSidebar);
 
   // 6. Fit Screen vs Fit Width Controls
   btnFitScreen.addEventListener('click', () => {
