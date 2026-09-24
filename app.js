@@ -87,47 +87,108 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 2. Scroll-to-Page Method
+  let isProgrammaticScroll = false;
+  let scrollLockTimeout = null;
+
   function scrollToPage(pageNum) {
     if (pageNum < 1) pageNum = 1;
     if (pageNum > TOTAL_PAGES) pageNum = TOTAL_PAGES;
+
+    // Immediately update page indicator and active thumbnail
+    setActivePage(pageNum);
+
+    // Lock programmatic scroll to prevent scroll spy overrides during smooth scrolling
+    isProgrammaticScroll = true;
+    clearTimeout(scrollLockTimeout);
+    scrollLockTimeout = setTimeout(() => {
+      isProgrammaticScroll = false;
+    }, 700);
+
+    if (pageNum === 1) {
+      scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     const target = document.getElementById(`page-${pageNum}`);
     if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const containerRect = scrollArea.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const offsetTop = targetRect.top - containerRect.top + scrollArea.scrollTop - 12;
+      scrollArea.scrollTo({ top: offsetTop, behavior: 'smooth' });
     }
   }
 
-  // 3. Scroll Spy (Intersection Observer)
-  const observer = new IntersectionObserver((entries) => {
-    let bestEntry = null;
-    let maxRatio = 0;
+  // 3. Rock-solid Scroll Spy: determines current page by highest visible area on screen
+  let isScrollTicking = false;
 
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
-        maxRatio = entry.intersectionRatio;
-        bestEntry = entry;
-      }
-    });
-
-    if (bestEntry) {
-      const pageIndex = parseInt(bestEntry.target.dataset.page, 10);
-      setActivePage(pageIndex);
+  function onScrollUpdate() {
+    if (!isScrollTicking) {
+      requestAnimationFrame(() => {
+        calculateCurrentPage();
+        isScrollTicking = false;
+      });
+      isScrollTicking = true;
     }
-  }, {
-    root: scrollArea,
-    threshold: [0.15, 0.4, 0.7]
-  });
+  }
 
-  pageNodes.forEach((node) => observer.observe(node));
+  function calculateCurrentPage() {
+    if (isProgrammaticScroll) return;
+
+    // Boundary 1: At the very top, unconditionally Page 1
+    if (scrollArea.scrollTop <= 30) {
+      if (currentPage !== 1) {
+        setActivePage(1);
+      }
+      return;
+    }
+
+    // Boundary 2: At the very bottom, unconditionally last page
+    const isAtBottom = (scrollArea.scrollTop + scrollArea.clientHeight) >= (scrollArea.scrollHeight - 35);
+    if (isAtBottom) {
+      if (currentPage !== TOTAL_PAGES) {
+        setActivePage(TOTAL_PAGES);
+      }
+      return;
+    }
+
+    const containerRect = scrollArea.getBoundingClientRect();
+    let bestPage = currentPage;
+    let maxVisibleHeight = 0;
+
+    // Find which page occupies the largest vertical area in the scroll viewport
+    for (let i = 0; i < pageNodes.length; i++) {
+      const node = pageNodes[i];
+      const rect = node.getBoundingClientRect();
+
+      const visibleTop = Math.max(rect.top, containerRect.top);
+      const visibleBottom = Math.min(rect.bottom, containerRect.bottom);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+      if (visibleHeight > maxVisibleHeight) {
+        maxVisibleHeight = visibleHeight;
+        bestPage = i + 1;
+      }
+    }
+
+    if (bestPage !== currentPage && maxVisibleHeight > 60) {
+      setActivePage(bestPage);
+    }
+  }
+
+  scrollArea.addEventListener('scroll', onScrollUpdate, { passive: true });
+  window.addEventListener('scroll', onScrollUpdate, { passive: true });
 
   function setActivePage(pageNum) {
     currentPage = pageNum;
     pageInput.value = pageNum;
 
-    // Highlight Thumbnail
+    // Highlight active thumbnail in sidebar
     thumbNodes.forEach((thumb, idx) => {
       if (idx + 1 === pageNum) {
         thumb.classList.add('active');
-        thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (!sidebar.classList.contains('hidden')) {
+          thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       } else {
         thumb.classList.remove('active');
       }
